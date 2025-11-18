@@ -227,6 +227,7 @@ import PhysLean.QuantumMechanics.OneDimension.GeneralPotential.Basic
 import PhysLean.QuantumMechanics.OneDimension.HarmonicOscillator.Basic
 import PhysLean.QuantumMechanics.OneDimension.HarmonicOscillator.Completeness
 import PhysLean.QuantumMechanics.OneDimension.HarmonicOscillator.Eigenfunction
+import PhysLean.QuantumMechanics.OneDimension.HarmonicOscillator.Examples
 import PhysLean.QuantumMechanics.OneDimension.HarmonicOscillator.TISE
 import PhysLean.QuantumMechanics.OneDimension.HilbertSpace.Basic
 import PhysLean.QuantumMechanics.OneDimension.HilbertSpace.Gaussians
@@ -322,6 +323,7 @@ import PhysLean.Relativity.Tensors.TensorSpecies.Basic
 import PhysLean.Relativity.Tensors.Tensorial
 import PhysLean.Relativity.Tensors.UnitTensor
 import PhysLean.SpaceAndTime.Space.Basic
+import PhysLean.SpaceAndTime.Space.ConstantSliceDist
 import PhysLean.SpaceAndTime.Space.CrossProduct
 import PhysLean.SpaceAndTime.Space.Derivatives.Basic
 import PhysLean.SpaceAndTime.Space.Derivatives.Curl
@@ -332,7 +334,9 @@ import PhysLean.SpaceAndTime.Space.DistConst
 import PhysLean.SpaceAndTime.Space.DistOfFunction
 import PhysLean.SpaceAndTime.Space.IsDistBounded
 import PhysLean.SpaceAndTime.Space.LengthUnit
+import PhysLean.SpaceAndTime.Space.Norm
 import PhysLean.SpaceAndTime.Space.RadialAngularMeasure
+import PhysLean.SpaceAndTime.Space.Slice
 import PhysLean.SpaceAndTime.Space.SpaceStruct
 import PhysLean.SpaceAndTime.Space.Translations
 import PhysLean.SpaceAndTime.SpaceTime.Basic

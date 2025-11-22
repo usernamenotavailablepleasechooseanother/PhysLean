@@ -41,6 +41,8 @@ field strength matrix. This is an antisymmetric matrix.
   - C.6. Spatial derivative of the magnetic field matrix
   - C.7. Temporal derivative of the magnetic field matrix
   - C.8. `curl` of the magnetic field matrix
+- D. Magnetic field matrix for distributions
+  - D.1. Magnetic field matrix in terms of vector potentials
 
 ## iv. References
 
@@ -580,4 +582,60 @@ lemma curl_magneticFieldMatrix_eq_electricField_fieldStrengthMatrix {d : ℕ} {c
 
 end ElectromagneticPotential
 
+/-!
+
+## D. Magnetic field matrix for distributions
+
+-/
+
+namespace DistElectromagneticPotential
+open TensorSpecies
+open Tensor
+open SpaceTime
+open TensorProduct
+open minkowskiMatrix SchwartzMap
+attribute [-simp] Fintype.sum_sum_type
+attribute [-simp] Nat.succ_eq_add_one
+
+/-- The magnetic field matrix of an electromagnetic potential which is a distribution. -/
+noncomputable def magneticFieldMatrix {d} (c : SpeedOfLight) :
+    DistElectromagneticPotential d →ₗ[ℝ]
+    (Time × Space d) →d[ℝ] (EuclideanSpace ℝ (Fin d) ⊗[ℝ] EuclideanSpace ℝ (Fin d)) where
+  toFun A :=
+    ⟨TensorProduct.map (Lorentz.Vector.spatialCLM d).toLinearMap
+      (Lorentz.Vector.spatialCLM d).toLinearMap, by continuity⟩ ∘L
+    distTimeSlice c A.fieldStrength
+  map_add' A1 A2 := by
+    ext ε
+    simp
+  map_smul' r A := by
+    ext ε
+    simp
+
+/-!
+
+### D.1. Magnetic field matrix in terms of vector potentials
+(Space.deriv j (A.vectorPotential c t · i) x -
+    Space.deriv i (A.vectorPotential c t · j) x) \
+
+-/
+
+lemma magneticFieldMatrix_eq_vectorPotential {c : SpeedOfLight}
+    (A : DistElectromagneticPotential d)
+    (ε : 𝓢(Time × Space d, ℝ)) :
+    A.magneticFieldMatrix c ε = ∑ i, ∑ j,
+    (Space.distSpaceDeriv j (A.vectorPotential c) ε i -
+      Space.distSpaceDeriv i (A.vectorPotential c) ε j) •
+    EuclideanSpace.basisFun (Fin d) ℝ i ⊗ₜ[ℝ] EuclideanSpace.basisFun (Fin d) ℝ j := by
+  simp only [magneticFieldMatrix, LinearMap.coe_mk, AddHom.coe_mk, ContinuousLinearMap.coe_comp',
+    ContinuousLinearMap.coe_mk', Function.comp_apply, distTimeSlice_apply, fieldStrength_eq_basis,
+    Fintype.sum_sum_type, Finset.univ_unique, Fin.default_eq_zero, Fin.isValue,
+    Finset.sum_singleton, inl_0_inl_0, one_mul, inr_i_inr_i, neg_mul, sub_neg_eq_add, sub_self,
+    zero_smul, zero_add, map_add, map_sum, map_smul, map_tmul, ContinuousLinearMap.coe_coe,
+    Lorentz.Vector.spatialCLM_basis_sum_inl, Lorentz.Vector.spatialCLM_basis_sum_inr,
+    EuclideanSpace.basisFun_apply, zero_tmul, smul_zero, Finset.sum_const_zero, tmul_zero]
+  simp [← distTimeSlice_apply, distTimeSlice_distDeriv_inr, vectorPotential,
+  Space.distSpaceDeriv_apply_CLM, Lorentz.Vector.spatialCLM, neg_add_eq_sub]
+
+end DistElectromagneticPotential
 end Electromagnetism

@@ -65,6 +65,15 @@ instance (d : ℕ) : Norm (Vector d) where
 lemma norm_eq_equivEuclid (d : ℕ) (v : Vector d) :
     ‖v‖ = ‖equivEuclid d v‖ := rfl
 
+@[simp]
+lemma abs_component_le_norm {d : ℕ} (v : Vector d) (i : Fin 1 ⊕ Fin d) :
+    |v i| ≤ ‖v‖ := by
+  simp [norm_eq_equivEuclid, PiLp.norm_eq_of_L2, -Fintype.sum_sum_type]
+  refine Real.abs_le_sqrt ?_
+  trans ∑ j ∈ {i}, (v j) ^ 2
+  · simp
+  refine Finset.sum_le_univ_sum_of_nonneg (fun i => by positivity)
+
 instance isNormedAddCommGroup (d : ℕ) : NormedAddCommGroup (Vector d) where
   dist_self x := by simp [norm_eq_equivEuclid]
   dist_comm x y := by
@@ -481,6 +490,12 @@ lemma _root_.LorentzGroup.eq_of_action_vector_eq {d : ℕ}
   apply LorentzGroup.eq_of_mulVec_eq
   simpa only [smul_eq_mulVec] using fun x => h x
 
+/-!
+
+## B. The continuous action of the Lorentz group
+
+-/
+
 /-- The Lorentz action on vectors as a continuous linear map. -/
 def actionCLM {d : ℕ} (Λ : LorentzGroup d) :
     Vector d →L[ℝ] Vector d :=
@@ -524,7 +539,7 @@ lemma smul_basis {d : ℕ} (Λ : LorentzGroup d) (μ : Fin 1 ⊕ Fin d) :
 
 /-!
 
-## Spatial part
+## C. The Spatial part
 
 -/
 
@@ -546,9 +561,34 @@ lemma spatialPart_basis_sum_inr {d : ℕ} (i : Fin d) (j : Fin d) :
 lemma spatialPart_basis_sum_inl {d : ℕ} (i : Fin d) :
     spatialPart (basis (Sum.inl 0)) i = 0 := by simp
 
+/-- The spatial part of a Lorentz vector as a continous linear map. -/
+def spatialCLM (d : ℕ) : Vector d →L[ℝ] EuclideanSpace ℝ (Fin d) where
+  toFun v := WithLp.toLp 2 fun i => v (Sum.inr i)
+  map_add' v1 v2 := by rfl
+  map_smul' c v := by rfl
+  cont := by fun_prop
+
+lemma spatialCLM_apply_eq_spatialPart {d : ℕ} (v : Vector d) (i : Fin d) :
+    spatialCLM d v i = spatialPart v i := rfl
+
+@[simp]
+lemma spatialCLM_basis_sum_inl {d : ℕ} :
+    spatialCLM d (basis (Sum.inl 0)) = 0 := by
+  ext i
+  exact spatialPart_basis_sum_inl i
+
+@[simp]
+lemma spatialCLM_basis_sum_inr {d : ℕ} (i : Fin d) :
+    spatialCLM d (basis (Sum.inr i)) = EuclideanSpace.basisFun (Fin d) ℝ i := by
+  ext j
+  rw [spatialCLM_apply_eq_spatialPart, spatialPart_basis_sum_inr i j]
+  simp [Finsupp.single_apply]
+  congr 1
+  exact Eq.propIntro (fun a => id (Eq.symm a)) fun a => id (Eq.symm a)
+
 /-!
 
-## The time component
+## The Temporal component
 
 -/
 
@@ -561,6 +601,27 @@ lemma timeComponent_basis_sum_inr {d : ℕ} (i : Fin d) :
 
 lemma timeComponent_basis_sum_inl {d : ℕ} :
     timeComponent (d := d) (basis (Sum.inl 0)) = 1 := by simp
+
+/-- The temporal part of a Lorentz vector as a continuous linear map. -/
+def temporalCLM (d : ℕ) : Vector d →L[ℝ] ℝ :=
+  LinearMap.toContinuousLinearMap {
+    toFun := fun v => v (Sum.inl 0)
+    map_add' := by simp
+    map_smul' := by simp}
+
+lemma temporalCLM_apply_eq_timeComponent {d : ℕ} (v : Vector d) :
+    temporalCLM d v = timeComponent v := rfl
+
+@[simp]
+lemma temporalCLM_basis_sum_inr {d : ℕ} (i : Fin d) :
+    temporalCLM d (basis (Sum.inr i)) = 0 := by
+  simp [temporalCLM_apply_eq_timeComponent, basis_apply]
+
+@[simp]
+lemma temporalCLM_basis_sum_inl {d : ℕ} :
+    temporalCLM d (basis (Sum.inl 0)) = 1 := by
+  simp [temporalCLM_apply_eq_timeComponent, basis_apply]
+
 /-!
 
 ## Smoothness
